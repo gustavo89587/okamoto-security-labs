@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Okamoto Security Labs — Diagnóstico de Logs com IA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body{background:#0d1117;color:#e6edf3}
+    .brand{letter-spacing:.5px}
+    .hero{background:linear-gradient(135deg,#111827,#0b1220 60%,#111827);border-bottom:1px solid #202938}
+    .card{background:#111827;border:1px solid #202938}
+    .badge-soft{background:rgba(99,179,237,.15);border:1px solid rgba(99,179,237,.35);color:#9bd1ff}
+    .muted{color:#9ba3af}
+    .footer{border-top:1px solid #202938;color:#9ba3af}
+    .hidden{display:none}
+    .dropzone{border:1px dashed #2b3954;border-radius:.75rem;padding:1.25rem;background:#0b1220}
+    a, a:visited{color:#7cc5ff}
+  </style>
+</head>
+<body>
+
+<header class="hero py-4">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-2">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" stroke="#7cc5ff" stroke-width="1.5"/><path d="M6.5 9.5L12 12l5.5-2.5" stroke="#7cc5ff" stroke-width="1.5"/></svg>
+      <strong class="brand">Okamoto Security Labs</strong>
+      <span class="badge badge-soft ms-2">MVP</span>
+    </div>
+    <a class="btn btn-outline-light btn-sm" href="#contato">Fale com a equipe</a>
+  </div>
+</header>
+
+<main class="container py-5">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-6">
+      <h1 class="h2 mb-3">Diagnóstico de Segurança com IA — em minutos</h1>
+      <p class="muted">Transforme <em>logs brutos</em> em <strong>relatórios executivos e técnicos</strong> com classificação automática de risco. Ideal para PMEs, auditorias rápidas e comprovação de conformidade.</p>
+      <ul class="muted mb-4">
+        <li>Suporte a <strong>Apache, Nginx, Syslog, Wazuh</strong></li>
+        <li>Relatório PDF com visão executiva e técnica</li>
+        <li>Sem instalação de SIEM — análise imediata</li>
+      </ul>
+      <div class="d-flex gap-2">
+        <a class="btn btn-primary" href="#demo">Testar agora (grátis)</a>
+        <a class="btn btn-outline-light" href="#como-funciona">Como funciona</a>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card p-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <strong>Exemplo de saída</strong>
+          <span class="muted">PDF executivo</span>
+        </div>
+        <img class="img-fluid rounded" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1400&auto=format&fit=crop" alt="Dashboard security" />
+        <small class="d-block mt-2 muted">Print ilustrativo. O relatório real é gerado localmente pelo seu servidor.</small>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-5" />
+
+  <section id="demo" class="row g-4 align-items-start">
+    <div class="col-lg-7">
+      <div class="card p-4">
+        <h2 class="h5 mb-3">Envie um arquivo de log e receba o diagnóstico</h2>
+        <p class="muted mb-4">Selecione o tipo de origem, faça upload de um <code>.log</code> e o MVP vai normalizar os eventos e sugerir severidade. Em seguida, gere um PDF executivo.</p>
+
+        <div class="mb-3">
+          <label class="form-label">Endpoint do backend (FastAPI)</label>
+          <input id="apiBase" class="form-control form-control-sm" value="http://127.0.0.1:8000" />
+          <div class="form-text">Mude se o backend estiver em outra máquina/porta.</div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Origem do log</label>
+            <select id="source" class="form-select">
+              <option value="apache">apache</option>
+              <option value="nginx">nginx</option>
+              <option value="syslog">syslog</option>
+              <option value="wazuh">wazuh</option>
+            </select>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label">Arquivo</label>
+            <div class="dropzone">
+              <input id="file" type="file" class="form-control" />
+              <div class="form-text">Tamanho recomendado &lt; 5MB para o MVP.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button id="btnIngest" class="btn btn-primary">Analisar log</button>
+          <button id="btnReport" class="btn btn-outline-light" disabled>Gerar PDF executivo</button>
+        </div>
+
+        <div id="ingestOk" class="alert alert-success mt-3 hidden"></div>
+        <div id="ingestErr" class="alert alert-danger mt-3 hidden"></div>
+
+        <pre id="sampleOut" class="mt-3 p-3 rounded" style="background:#0b1220;border:1px solid #202938;white-space:pre-wrap;"></pre>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card p-4">
+        <h3 class="h6">Como funciona</h3>
+        <ol class="muted">
+          <li>Upload → parser (apache/nginx/syslog/wazuh)</li>
+          <li>Normalização → <code>{ source, severity, parsed, raw }</code></li>
+          <li>Heurística de risco → resposta imediata</li>
+          <li>Geração de PDF executivo → pronto para diretoria</li>
+        </ol>
+        <p class="muted small mb-0">Privacidade: o arquivo é enviado apenas ao seu próprio backend FastAPI, rodando no seu computador/servidor.</p>
+      </div>
+
+      <div class="card p-4 mt-3">
+        <h3 class="h6">Precisa de ajuda para hospedar?</h3>
+        <p class="muted">Oferecemos implantação gerenciada (VPS/AWS) + relatórios semanais. Peça uma proposta.</p>
+        <a href="#contato" class="btn btn-outline-light btn-sm">Solicitar proposta</a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="my-5" />
+
+  <section id="como-funciona" class="row g-4">
+    <div class="col-lg-8">
+      <h2 class="h5">Proposta de valor</h2>
+      <ul class="muted">
+        <li>Diagnóstico rápido sem SIEM caro</li>
+        <li>Relatório executivo técnico + recomendações</li>
+        <li>Ideal para PMEs e auditorias express</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="footer py-4">
+  <div class="container d-flex justify-content-between">
+    <span>© <span id="y"></span> Okamoto Security Labs</span>
+    <a id="contato" href="mailto:contato@okamotolabs.com">contato@okamotolabs.com</a>
+  </div>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const show = (el, txt) => { el.classList.remove('hidden'); if (txt) el.textContent = txt };
+const hide = (el) => el.classList.add('hidden');
+
+document.getElementById('y').textContent = new Date().getFullYear();
+
+const btnIngest = $('#btnIngest');
+const btnReport = $('#btnReport');
+
+btnIngest.addEventListener('click', async () => {
+  hide($('#ingestOk')); hide($('#ingestErr')); $('#sampleOut').textContent = '';
+  const base = $('#apiBase').value.replace(/\/$/, '');
+  const src = $('#source').value;
+  const f = $('#file').files[0];
+  if(!f){ show($('#ingestErr'), 'Selecione um arquivo .log.'); return; }
+
+  const fd = new FormData();
+  fd.append('file', f);
+
+  btnIngest.disabled = true; btnIngest.textContent = 'Analisando...';
+  try{
+    const r = await fetch(`${base}/ingest/file?source=${encodeURIComponent(src)}`, { method:'POST', body: fd });
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.detail || r.statusText);
+    show($('#ingestOk'), `Arquivo enviado. Eventos ingeridos: ${j.ingested}.`);
+    $('#sampleOut').textContent = JSON.stringify(j.sample, null, 2);
+    btnReport.disabled = false;
+  }catch(e){ show($('#ingestErr'), 'Falha ao analisar: '+e.message); }
+  finally{ btnIngest.disabled = false; btnIngest.textContent = 'Analisar log'; }
+});
+
+btnReport.addEventListener('click', async () => {
+  hide($('#ingestErr'));
+  const base = $('#apiBase').value.replace(/\/$/, '');
+  btnReport.disabled = true; btnReport.textContent = 'Gerando PDF...';
+  try{
+    const r = await fetch(`${base}/report/pdf`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ period: 'últimos 7 dias', template: 'exec' })
+    });
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.detail || r.statusText);
+    const path = j.pdf_path || 'data/okamoto_exec.pdf';
+    show($('#ingestOk'), 'PDF gerado com sucesso.');
+    window.open(`${base}/${path.replace(/^\.*\//,'')}`, '_blank');
+  }catch(e){ show($('#ingestErr'),'Falha ao gerar PDF: '+e.message); }
+  finally{ btnReport.disabled = false; btnReport.textContent = 'Gerar PDF executivo'; }
+});
+</script>
+
+</body>
+</html>
